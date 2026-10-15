@@ -43,6 +43,8 @@ class DistributionTests(unittest.TestCase):
             for path in archive.namelist():
                 self.assertFalse(any(part in path for part in ("__pycache__", ".git/", "tests/", "scripts/", ".pyc")), path)
                 self.assertEqual(archive.read(path), (self.output / "package" / path).read_bytes())
+                if Path(path).suffix in (".md", ".cs", ".py", ".json", ".toml"):
+                    self.assertNotRegex(archive.read(path).decode("utf-8"), r"[\u0400-\u052f]", path)
 
     def test_blender_versions_and_embedded_zip(self):
         blender = self.artifacts["nyades_ft_toolkit-1.3.42.zip"]

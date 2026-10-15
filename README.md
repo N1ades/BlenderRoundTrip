@@ -5,126 +5,127 @@
 [![Unity 2022.3+](https://img.shields.io/badge/Unity-2022.3%2B-black)](https://unity.com/)
 [![Blender 4.2+](https://img.shields.io/badge/Blender-4.2%2B-orange)](https://www.blender.org/)
 
-Перенос мешей, рига и shape keys между Unity и Blender с сохранением существующих объектов аватара. В комплекте — **Nyades FT Toolkit** для симметрии, зеркальных shape keys и живого FT-превью.
+Move meshes, rigs and shape keys between Unity and Blender while retaining existing avatar objects. Includes **Nyades FT Toolkit** for symmetry repair, mirrored shape keys and live face tracking preview.
 
-Меню: **Nyades → Blender Round Trip**, **Nyades → FT Live Preview**. Нужны Unity **2022.3+** и установленный Blender с экспортом FBX; для FT Toolkit — Blender **4.2+**. VRChat SDK, Modular Avatar и Poiyomi не требуются для Round Trip. Интеграции с SDK/NDMF включаются при наличии соответствующих инструментов.
+Open **Nyades → Blender Round Trip** or **Nyades → FT Live Preview** in Unity. Requires Unity **2022.3+** and a Blender installation with FBX export; FT Toolkit requires Blender **4.2+**. Round Trip does not require the VRChat SDK, Modular Avatar or Poiyomi. SDK and NDMF integrations become available when those tools are installed.
 
-## Установка
+## Installation
 
-Выберите один способ установки для каждого проекта. При переходе с `.unitypackage` на Git-пакет удалите старую папку `Assets/Nyades/BlenderRoundTrip`, чтобы не дублировать классы. VCC распознаёт эту папку через `legacyFolders`. Рабочие файлы и резервные копии хранятся отдельно в `Assets/Nyades/BlenderRoundTripData`.
+Use one installation method per project. When moving from `.unitypackage` to a Git package, remove the old `Assets/Nyades/BlenderRoundTrip` folder to avoid duplicate classes. VCC recognizes this folder through `legacyFolders`. Working files and backups are stored separately in `Assets/Nyades/BlenderRoundTripData`.
 
 ### VRChat Creator Companion / VCC
 
-В **VCC → Settings → Packages → Add Repository** вставьте:
+In **VCC → Settings → Packages → Add Repository**, enter:
 
 ```text
 https://raw.githubusercontent.com/N1ades/BlenderRoundTrip/vpm/index.json
 ```
 
-Добавьте **Nyades Blender Round Trip** через **Manage Project**. Каждый опубликованный релиз автоматически появляется в этом репозитории; обновления устанавливаются средствами VCC. [Добавить репозиторий в VCC](vcc://vpm/addRepo?url=https%3A%2F%2Fraw.githubusercontent.com%2FN1ades%2FBlenderRoundTrip%2Fvpm%2Findex.json).
+Add **Nyades Blender Round Trip** through **Manage Project**. Every published release appears in this repository automatically; install updates through VCC. [Add repository to VCC](vcc://vpm/addRepo?url=https%3A%2F%2Fraw.githubusercontent.com%2FN1ades%2FBlenderRoundTrip%2Fvpm%2Findex.json).
 
 ### Unity Package Manager / Git URL
 
-В Unity откройте **Window → Package Manager → + → Add package from git URL**:
+In Unity, open **Window → Package Manager → + → Add package from git URL**:
 
 ```text
 https://github.com/N1ades/BlenderRoundTrip.git#upm
 ```
 
-Требуется установленный Git. Ветка `upm` содержит последний собранный пакет с актуальной версией в `package.json`. Для конкретного релиза замените `#upm` на тег, например `#v1.3.1`.
+Git must be installed. The `upm` branch contains the latest built package with the release version in `package.json`. For a specific release, replace `#upm` with its tag, such as `#v1.3.1`.
 
-Unity закрепляет Git-зависимости на коммите. При открытии Round Trip или FT Preview инструмент проверяет новые Releases в фоне, не чаще раза в час. Небольшое уведомление **Update available** показывает текущую и новую версию; **Update via UPM** устанавливает новый тег через Unity Package Manager. **Check for updates** запускает проверку вручную. Установка обновления выполняется по кнопке, чтобы не прерывать работу. Для VCC уведомление открывает VCC, а для `.unitypackage` — страницу загрузки.
+Unity locks Git dependencies to a commit. Opening Round Trip or FT Preview checks GitHub Releases in the background, at most once per hour. A small **Update available** notice displays the installed and available versions. **Update via UPM** installs the new release tag through Unity Package Manager. **Check for updates** runs a manual check. Installation starts when you click the button, so it does not interrupt your work. For VCC installations, the notice opens VCC; for `.unitypackage` installations, it opens the download page.
 
-### Файл .unitypackage
+### Unity asset package
 
-Скачайте `Nyades-BlenderRoundTrip-<версия>.unitypackage` из [последнего релиза](https://github.com/N1ades/BlenderRoundTrip/releases/latest) и импортируйте через **Assets → Import Package → Custom Package**. Файлы устанавливаются в `Assets/Nyades/BlenderRoundTrip`, GUID сохраняются между версиями.
+Download `Nyades-BlenderRoundTrip-<version>.unitypackage` from the [latest release](https://github.com/N1ades/BlenderRoundTrip/releases/latest), then use **Assets → Import Package → Custom Package**. Files are installed in `Assets/Nyades/BlenderRoundTrip`, with stable GUIDs between releases.
 
-`Nyades-BlenderRoundTrip-<версия>-Assets.zip` содержит ту же папку для ручного копирования вместе с `.meta`. Аддон Blender также доступен отдельно: `nyades_ft_toolkit-<версия>.zip`.
+`Nyades-BlenderRoundTrip-<version>-Assets.zip` contains the same folder for manual copying, including `.meta` files. The Blender add-on is available separately as `nyades_ft_toolkit-<version>.zip`.
 
 ## Unity → Blender
 
-1. Откройте окно и перетащите корень аватара из Hierarchy в **Avatar root** либо выделите его и нажмите **Use selected object**.
-2. Укажите **Blender executable**. Steam-версия и установки в Blender Foundation обнаруживаются автоматически.
-3. Выберите **Export Unity blendshape values**: включено — перенос текущих значений из Unity, выключено — все shape keys в Blender выставляются в **0**. Настройка запоминается для проекта. Нажмите **Unity → New Blender File**, выберите новый `.blend`.
-4. Откройте файл в Blender. Он создаётся с нуля и содержит все SkinnedMeshRenderer и MeshRenderer/MeshFilter выбранного корня, включая отключённые объекты.
+1. Drag the avatar root from the Hierarchy into **Avatar root**, or select it and click **Use selected object**.
+2. Set **Blender executable**. Steam and Blender Foundation installations are detected automatically.
+3. Choose **Export Unity blendshape values**. Enabled transfers current Unity values; disabled starts Blender shape keys at **0**. This setting is saved per project. Click **Unity → New Blender File** and choose a new `.blend` file.
+4. Open the file in Blender. It contains all SkinnedMeshRenderer and MeshRenderer/MeshFilter objects under the selected root, including inactive objects.
 
-Экспортируются геометрия, до восьми каналов 2D UV, цвета вершин, нормали, материал-слоты, веса, относительные shape keys и rest pose костей с ориентацией и масштабом. Включаются также неиспользуемые веса́ми дочерние кости. Материалы Blender служат для предпросмотра цвета/основной текстуры; полноценные Unity-шейдеры не переносятся.
+Exported data includes geometry, up to eight 2D UV channels, vertex colors, normals, material slots, weights, relative shape keys and bone rest poses, including orientation and scale. Child bones without skin weights are included. Blender materials preview color and the main texture; complete Unity shaders are not transferred.
 
-Значения shape keys переводятся в шкалу Blender с учётом веса кадра: например, Unity **30** при полном кадре **100** становится **0.3** в Blender. Для полного кадра **50** значение **30** становится **0.6**. Это только значения ползунков в новом `.blend`, а не запекание деформации в Basis. При обратном переносе FBX экспортируется с нулевыми ползунками, а текущие значения рендеров Unity сохраняются по именам.
+Shape key values are normalized by their full frame weight: Unity **30** with a full frame of **100** becomes **0.3** in Blender; **30** with a full frame of **50** becomes **0.6**. These are slider values, not deformations baked into Basis. On the return trip, FBX is exported with zeroed sliders, and Unity renderer values are retained by name.
 
-Если у shape key назначена **Vertex Group**, её веса автоматически применяются к деформации перед FBX-экспортом: вес 0 отключает движение вершины, 0.5 даёт половину, 1 — полное движение. В FBX ключ становится обычным blendshape без маски группы; вручную преобразовывать его не нужно. Относительные ключи, включая зависимости от других ключей, сохраняют свою деформацию. Скиннинг-группы и их веса остаются на месте. Применение выполняется только в фоновом процессе экспорта — сохранённый `.blend` сохраняет редактируемые ключи с назначенными группами.
+If a shape key has a **Vertex Group**, its weights are applied to the deformation before FBX export: 0 removes movement, 0.5 halves it, and 1 retains it fully. FBX receives a regular blendshape without a group mask. Relative key dependencies retain their deformations; skinning groups and weights are preserved. This conversion runs only in the background exporter. The saved `.blend` retains editable keys with their assigned groups.
 
-В Blender меши называются `NRTM_0000`, кости — `NRTB_0000`. Исходное имя находится в пользовательском свойстве `unity_name`. Эти идентификаторы и текст `Nyades_RoundTrip_Manifest` обеспечивают сопоставление, в том числе при повторяющихся именах в Unity. Не переименовывайте их.
+Blender meshes are named `NRTM_0000` and bones `NRTB_0000`. Original names are stored in the `unity_name` custom property. These identifiers and the `Nyades_RoundTrip_Manifest` text block provide matching even when Unity names are duplicated. Keep these identifiers unchanged.
 
 ## Blender → Unity
 
-1. Редактируйте вершины, топологию, UV, веса и shape keys. Кости редактируйте в **Edit Mode** арматуры: позиции, направления, roll и длину. Можно добавлять новые кости и назначать им веса. Сохраните файл с **Ctrl+S**.
-2. Выберите тот же корень аватара и **Saved Blender file**.
-3. Оставьте включённым **Import bone edits** и нажмите **Saved Blender File → Unity**. Если нужен только перенос мешей, отключите эту опцию; изменение rest pose тогда блокирует импорт.
-4. После успешного импорта сохраните сцену Unity или изменения в Prefab Mode.
+1. Edit vertices, topology, UVs, weights and shape keys. Edit bones in the armature's **Edit Mode**: positions, directions, roll and length. You may add new bones and weights. Save with **Ctrl+S**.
+2. Select the same avatar root and **Saved Blender file**.
+3. Keep **Import bone edits** enabled and click **Saved Blender File → Unity**. Disable it for a mesh-only transfer; rest pose changes then prevent import.
+4. Save the Unity scene or your changes in Prefab Mode after importing.
 
-Тулза заменяет mesh data на существующих рендерах и обновляет локальные трансформации существующих костей. Объекты костей сохраняются вместе с компонентами и ссылками PhysBones/SDK; новые кости добавляются в иерархию, веса привязываются к ним, bind poses пересчитываются. После изменения рига Humanoid Avatar пересобирается с прежним сопоставлением человеческих костей. Проверка на временной копии отклоняет риг, который не может создать корректный Humanoid Avatar, до изменения выбранного аватара. Материалы, Animator, компоненты SDK и Modular Avatar остаются на своих объектах. Список blendshape берётся из импортируемого FBX: удалённые в Blender ключи удаляются и из нового меша Unity, новые добавляются. Удаление и переименование ключей не блокируют импорт. Значения оставшихся blendshape сохраняются по именам; новые получают значение 0. Индексы eyelid shapes VRChat переназначаются по именам через сериализацию, без зависимости от SDK; удалённые и недействительные ссылки сбрасываются в **-1** (не назначено).
+The tool replaces mesh data on existing renderers and updates existing bones' local transforms. Bone objects, components and PhysBones/SDK references are retained. New bones are added, weights are bound to them, and bind poses are recalculated. After rig changes, the Humanoid Avatar is rebuilt with the original human bone mapping. Validation on a temporary copy rejects invalid Humanoid rigs before changing your selected avatar.
 
-Материал-слоты можно удалять, добавлять и переставлять. Unity получает число и порядок submesh из FBX, а прежние Unity-материалы (включая их шейдеры и настройки) сопоставляются по исходному идентификатору слота, а не по его текущему индексу. Поэтому отбрасывание пустых слотов FBX не блокирует импорт и не сдвигает материалы на соседние грани. Новые экспорты записывают идентификатор в свойства Blender-материала `nyades_mesh_id` / `nyades_slot`; переименование материала его не теряет. Для старых `.blend` поддерживаются имена `NRTM_..._Slot_...`: сохраняйте этот префикс, чтобы восстановить исходный Unity-материал. Материал из другого экспортированного меша также сопоставляется со своим Unity-оригиналом. Совпадающее уникальное имя позволяет использовать материал, уже назначенный в аватаре; неизвестный новый материал берётся из FBX как Standard preview, после импорта ему можно назначить нужный Unity-шейдер. Пустые слоты сохраняются как null; удаление всех слотов не возвращает их автоматически. **Ctrl+Z** восстанавливает и mesh data, и массив материалов.
+Materials, Animator, SDK and Modular Avatar components remain on their objects. The FBX defines the new blendshape list: deleted keys are removed and new keys are added. Deleting or renaming keys does not block import. Existing values are retained by name; new keys start at 0. VRChat eyelid indices are remapped by name through serialization without an SDK dependency; deleted or invalid references become **-1** (unassigned).
 
-В Unity нет отдельного свойства длины кости: изменение длины в Blender переносится как коэффициент локального масштаба по оси Y. Остальные компоненты масштаба можно задать в пользовательском свойстве кости **unity_scale**. Поддерживаются положительные ненулевые масштабы. Тулза использует фактические будущие матрицы Unity для bind poses, включая неравномерный масштаб родителей.
+Material slots may be removed, added or reordered. FBX defines submesh count and order. Original Unity materials, including shaders and settings, are matched by original slot identifiers rather than current indices, so dropped empty slots do not shift materials onto other faces. New exports store `nyades_mesh_id` and `nyades_slot` on Blender materials; renaming preserves these properties. Older files use the `NRTM_..._Slot_...` name prefix, which must be retained. Materials from other exported meshes match their Unity originals. A matching unique name can reuse an existing avatar material. Unknown materials are imported as Standard previews and can be assigned a Unity shader afterward. Empty slots stay null; removing all slots does not restore them automatically. **Ctrl+Z** restores meshes and material arrays.
 
-Перед изменением аватара создаётся `Before_Import.prefab` с прежним ригом, компонентами и независимыми копиями прежних мешей. Новые mesh assets и пересобранный Humanoid Avatar создаются отдельно. **Ctrl+Z** отменяет замену мешей, изменения костей, добавление новых костей и замену Humanoid Avatar. По умолчанию рабочие файлы, версии и бэкапы находятся в `Assets/Nyades/BlenderRoundTripData/<аватар>/`; путь можно изменить в окне. Рейтинг производительности VRChat автоматически не ограничивается — после крупных правок запустите SDK Build & Test.
+Unity has no separate bone length property. Blender length changes transfer as a local Y scale factor. Set other scale components through the **unity_scale** bone custom property. Positive nonzero scales are supported. Bind poses use the actual resulting Unity matrices, including nonuniform parent scales.
 
-**Import Existing FBX** поддерживает обычный FBX с совпадающими путями/уникальными именами мешей и уникальными именами костей. Для файла с идентификаторами Nyades рядом должен лежать одноимённый `.json`, созданный скриптом транспорта. Старые `.blend` со специальными объединениями мешей конкретного аватара лучше заменить новым экспортом из текущего Unity.
+Before editing the avatar, the tool creates `Before_Import.prefab` with the old rig, components and independent mesh copies. New mesh assets and rebuilt Humanoid Avatars are saved separately. **Ctrl+Z** reverts mesh replacements, bone edits, added bones and Humanoid Avatar replacement. Working files and backups default to `Assets/Nyades/BlenderRoundTripData/<avatar>/`; the path is configurable. Run SDK **Build & Test** after major changes.
 
-## FT Toolkit для Blender
+**Import Existing FBX** also supports ordinary FBX with matching mesh paths or unique mesh names and unique bone names. Files with Nyades identifiers require the matching transport-generated `.json` sidecar. Replace older avatar-specific merged-mesh exports with a fresh export from Unity.
 
-В Round Trip включён отдельный аддон **Nyades FT Toolkit** для исправления симметрии Basis с сохранением всех деформаций shape keys, весов и топологии. Нажмите **Open FT Toolkit Add-on**, установите выделенный ZIP через **Blender → Preferences → Get Extensions → Install from Disk**, затем выберите меш и откройте **N → FT Toolkit → Repair Symmetry**. По умолчанию исправляется отрицательная сторона X по положительной. Аддон работает и на обычных мешах вне Round Trip; экспорт не требует его установки.
+## Blender FT Toolkit
 
-Аддон восстанавливает парные островки по совпадающим UV, материалам и топологии и исправляет небольшие отклонения по расстоянию. Неоднозначные пары пропускаются с отчётом. **Flip Active Shape Key** использует те же пары для полного отражения деформации активного ключа и, по умолчанию, его маски Vertex Group; если есть непарные вершины, Flip отменяется до изменения ключа. **Ctrl+Z** отменяет обе операции. Подробности и параметры: [FT Toolkit README](Editor/Blender/FTToolkit/README.md). Готовый архив: `Editor/Blender/nyades_ft_toolkit.zip`.
+The standalone **Nyades FT Toolkit** repairs Basis symmetry while preserving shape key deformations, weights and topology. Click **Open FT Toolkit Add-on**, install the ZIP through **Blender → Preferences → Get Extensions → Install from Disk**, select a mesh, and open **N → FT Toolkit → Repair Symmetry**. By default, the negative X side is repaired from the positive side. It also works outside Round Trip; export does not require it.
 
-**Create Mirrored Shape Key** создаёт отдельный зеркальный ключ с заменой **Right ↔ Left** в имени. Исходный ключ сохраняется; при совпадении имени добавляется `.001`, значение нового ключа — 0.
+The add-on pairs islands by UVs, materials and topology, then repairs small deviations through distance matching. Ambiguous pairs are skipped and reported. **Flip Active Shape Key** mirrors the active deformation and, by default, its Vertex Group mask. Unpaired vertices cancel the flip before any changes. **Ctrl+Z** supports both operations. See the [FT Toolkit guide](Editor/Blender/FTToolkit/README.md). The embedded archive is `Editor/Blender/nyades_ft_toolkit.zip`.
 
-**Apply Vertex Group** запекает маску группы в выбранный относительный shape key и очищает его поле Vertex Group. Видимая деформация, Relative Key и зависимые ключи сохраняются; сама группа и веса скиннинга остаются. Поддерживаются Object/Edit Mode и **Ctrl+Z**. Кнопка находится в **N → FT Toolkit**.
+**Create Mirrored Shape Key** creates a separate mirrored key and swaps **Right ↔ Left** in its name. The source is retained; name collisions receive `.001`. The new key starts at 0.
 
-**Open Live FT Preview** открывает Unity-мост **Nyades → FT Live Preview**. Он принимает OSC FT-параметры и вычисляет FX Animator на временной копии без Play Mode либо передаёт готовые веса выбранного runtime-аватара Av3Emulator/Gesture Manager. В Blender включите **N → FT Toolkit → Live FT Preview**. По умолчанию Unity принимает параметры на **9000**, Blender принимает конечные веса на **9003**. В режиме эмулятора входной порт остаётся за самим эмулятором. Подробная настройка VRCFT, ограничения FX-превью и восстановление ползунков при остановке описаны в README аддона.
+**Apply Vertex Group** bakes a group mask into a relative shape key and clears its Vertex Group field. Visible deformation, Relative Key, dependent keys, the group itself and skinning weights are preserved. Supports Object/Edit Mode and **Ctrl+Z**.
 
-В режиме без Play Mode **Show Unity avatar preview** показывает ту же временную копию одновременно с Blender. Камеру можно вращать и приближать; **Frame Face / Frame Avatar** выбирают кадрирование. В FT Toolkit 1.2 установите **Updates per second = 60** с обеих сторон: оконный таймер Blender, объединение накопившихся поз, пропуск неизменившихся значений и кэширование Unity-пакетов сокращают работу на кадр. Статус Blender показывает частоту входящих кадров, обработчика и время обработки; фактическая плавность зависит также от геометрии и шейдеров.
+**Open Live FT Preview** opens the Unity bridge. It receives OSC face tracking parameters and evaluates the FX Animator on a temporary copy without Play Mode, or streams final weights from an Av3Emulator/Gesture Manager runtime avatar. In Blender, enable **N → FT Toolkit → Live FT Preview**. Unity receives parameters on **9000** by default; Blender receives final weights on **9003**. Emulator mode leaves its input port to the emulator. See the add-on guide for VRCFT setup and limitations.
 
-Редакторное FX-превью сохраняет позу костей, которые FX не анимирует. Это предотвращает неявное применение Humanoid reference pose к дополнительным костям при оценке отдельного FX-контроллера (например, лишний поворот очков). Явные FX-кривые положения, вращения и масштаба продолжают работать. В Blender передаются веса шейпкеев; синхронизация явных анимаций костей и полного IK этим мостом не выполняется.
+**Show Unity avatar preview** displays the temporary avatar alongside Blender without Play Mode. Rotate and zoom the camera or use **Frame Face / Frame Avatar**. Set **Updates per second = 60** on both sides. Window timers, coalesced poses, unchanged-value skipping and cached packets reduce per-frame work. Blender reports incoming and receiver rates and processing time; smoothness also depends on geometry and shaders.
 
-## Ограничения
+FX preview retains bone poses that the controller does not animate, preventing extra bones from implicitly resetting to the Humanoid reference pose. Explicit FX position, rotation and scale curves still apply. The bridge sends shape key weights; explicit bone animations and full IK are not synchronized to Blender.
 
-- Для переноса костей создайте новый `.blend` текущей версией тулзы: старые файлы формата v1 поддерживают только перенос мешей. Для обычного FBX без данных Nyades изменение rest pose по-прежнему не поддерживается.
-- Сохраняйте идентификаторы и родителей существующих костей. Удаление, переименование и переподчинение существующих костей блокируются, чтобы сохранить ссылки компонентов и пути анимаций. Новые кости можно добавлять под существующими или другими новыми костями. Если дублирование кости в Blender скопировало `nyades_id`, удалите это свойство у новой копии.
-- Изменения костей в **Pose Mode** не импортируются: переносится только rest pose из **Edit Mode**. Служебная кость корня аватара, если она присутствует, должна оставаться неизменной. Длина без перемещения head/tail не равнозначна масштабированию готового меша: геометрию при необходимости редактируйте отдельно.
-- Сохраняйте объекты мешей. Можно менять топологию внутри объекта и материал-слоты; объединение, удаление и создание объектов мешей в Blender не поддерживаются.
-- Не перестраивайте иерархию аватара в Unity между экспортом и импортом.
-- Поддерживаются треугольные меши, максимум четыре веса на вершину и относительные shape keys с одним кадром положительного веса. Неподдерживаемые исходные данные отклоняются при экспорте.
-- Модификаторы Blender при экспорте не применяются, чтобы сохранить shape keys. Изменения топологии делайте непосредственно в меше.
-- Cloth, дополнительные потоки вершин и данные сторонних компонентов, зависящие от индексов вершин, автоматически не перестраиваются после изменения топологии.
-- Shape-key normal/tangent deltas и сложные материалы Unity не экспортируются в Blender; обычные нормали, UV и цвета меша переносятся.
+## Limitations
 
-Экспорт/импорт работает в фоновом процессе Blender; не требует открытой Blender-сессии. Файл можно сохранять в Object, Edit или Pose Mode: фоновый экспорт автоматически переключается в Object Mode и фиксирует сохранённые правки Edit Mode. Pose Mode по-прежнему не переносит анимационную позу. При ошибке кнопка **Copy Error** копирует полный traceback и вывод Blender. Закрытие окна останавливает текущий процесс и отменяет ожидающий импорт. После изменения пропорций костей проверьте движения Humanoid, eye look, положение коллайдеров и поведение PhysBones: их настройки сохраняются, но параметры под новую анатомию автоматически не подбираются.
+- Create a new `.blend` with the current tool for bone transfers. Older v1 files support meshes only. Ordinary FBX without Nyades data does not support rest pose changes.
+- Retain existing bone identifiers and parents. Deleting, renaming or reparenting existing bones is blocked to protect references and animation paths. New bones may be parented to existing or new bones. Remove a copied `nyades_id` from a newly duplicated bone.
+- **Pose Mode** changes are excluded; only the **Edit Mode** rest pose transfers. Keep the special avatar root bone unchanged when present. Bone length changes alone do not necessarily scale the visible mesh; edit geometry separately when needed.
+- Keep existing mesh objects. Editing topology and material slots is supported; joining, deleting or creating mesh objects is not.
+- Keep the Unity hierarchy unchanged between export and import.
+- Supported inputs are triangle meshes, at most four skin weights per vertex, and relative shape keys with one positive-weight frame. Unsupported source data is rejected on export.
+- Blender modifiers are not applied during export, preserving shape keys. Edit topology directly in the mesh.
+- Cloth, additional vertex streams and third-party data tied to vertex indices are not rebuilt after topology changes.
+- Shape key normal/tangent deltas and complex Unity materials are not exported. Regular normals, UVs and vertex colors are transferred.
 
+Export and import use a background Blender process; an open session is not required. Files may be saved in Object, Edit or Pose Mode. Background export switches to Object Mode and commits saved Edit Mode edits; animation poses remain excluded. **Copy Error** copies the full traceback and Blender output. Closing the window stops the process and cancels pending import. After changing proportions, check Humanoid motion, eye look, colliders and PhysBones: their settings are retained but are not adjusted automatically for new anatomy.
 
-## Дополнительный пресет оптимизации Roxy
+## Optional Roxy optimization preset
 
-**Nyades → Avatar Optimization → Configure Roxy Good** — необязательный пресет для аватара с двумя рендерами `Body` и `Outfit`. Требуется **AAO Avatar Optimizer 1.9.20**. Он добавляет группу `Nyades Good Optimization` с **AAO Merge Skinned Mesh**; объединение выполняется на копии для сборки, исходные меши остаются доступными для Round Trip. Пресет не предназначен для произвольного аватара; рейтинг производительности проверяйте в VRChat SDK для своей сборки. Модели и префабы аватара в этот репозиторий не входят.
+**Nyades → Avatar Optimization → Configure Roxy Good** requires exactly two renderers named `Body` and `Outfit`, and **AAO Avatar Optimizer 1.9.20**. It creates a `Nyades Good Optimization` group with **AAO Merge Skinned Mesh**. Merging runs on the build copy; source meshes remain editable. The preset is specific to this layout. Check performance ratings in the VRChat SDK. Avatar models and prefabs are not included.
 
-Оптимизация текстур, заморозка шейпкеев, упрощение геометрии и оптимизация аниматора не включены. FT-превью с `Build NDMF` выполняет фазу Optimizing; имя Body сохраняет соответствие с Blender.
+Texture optimization, shape key freezing, geometry reduction and Animator optimization are not enabled. FT preview with **Build NDMF** runs the Optimizing phase; the Body name retains its Blender mapping.
 
-## Автоматические сборки и разработка
+## Automatic releases and development
 
-Каждый **push в `main`** запускает [Build and release](.github/workflows/release.yml): проверку дистрибутивов, сборку и публикацию GitHub Release. Номер версии — `1.3.<github.run_number>`; номер запуска уникален, поэтому после PR-проверок или неудачных сборок возможны пропуски. Теги вручную создавать не нужно. Один push с несколькими коммитами выпускает одну версию для последнего коммита этого push.
+Every **push to `main`** runs [Build and release](.github/workflows/release.yml): validation, packaging and GitHub Release publication. Versions use `1.3.<github.run_number>`. PR checks and failed builds can leave gaps in run numbers. No manual tags are required. A push with multiple commits releases its final commit.
 
-В релиз входят VPM/UPM ZIP, `.unitypackage`, Assets ZIP, отдельный Blender ZIP, `package.json` и `SHA256SUMS.txt`. Архивы создаются из исходников; версия согласована во всех манифестах. Пакет сначала загружается в черновик, после загрузки всех файлов релиз публикуется и добавляется в VCC-индекс. PR собираются и проверяются без публикации. Повторный запуск сохраняет уже опубликованные релизы.
+Each release includes a VPM/UPM ZIP, `.unitypackage`, Assets ZIP, standalone Blender ZIP, `package.json` and `SHA256SUMS.txt`. All archives are rebuilt from source with matching manifest versions. Files upload to a draft first; the release becomes public after every upload completes, then the VCC index is updated. PRs build and validate without publication. Reruns preserve published releases.
 
-Ветки: `main` — исходники и CI, `upm` — последний готовый Git-пакет, `vpm` — JSON-репозиторий VCC. Теги `v1.3.N` указывают на готовый пакет с соответствующей версией. Исходный коммит указан в описании релиза и сообщении коммита пакета. Для обновлений не нужны дополнительные токены: сборщик использует стандартный `GITHUB_TOKEN` с правом записи содержимого только в job публикации.
+Branches: `main` contains source and CI, `upm` contains the latest built Git package, and `vpm` serves the VCC JSON index. Tags `v1.3.N` point to versioned packages. Source commits are recorded in release notes and package commit messages. No extra tokens are needed: the standard `GITHUB_TOKEN` receives content write access only in the publishing job.
 
-Локальная сборка требует Python **3.11+** и Git для интеграционной проверки публикации:
+Local builds require Python **3.11+** and Git for the publication integration test:
 
 ```sh
 python -m unittest discover -s tests -v
 python scripts/build_release.py --version 1.3.1
 ```
 
-Результат: `dist/`. Скрипт не запускает Unity или Blender: он проверяет синтаксис Python, GUID, содержимое архивов и манифесты. Компиляция C# и функциональная проверка аватара выполняются отдельно в Unity. Для разработки можно разместить checkout в `Assets/Nyades/BlenderRoundTrip`; при установке как Git/VCC-пакета исходники находятся в `Packages`.
+Output: `dist/`. The script checks Python syntax, GUIDs, archive contents and manifests without launching Unity or Blender. Check C# compilation and avatar behavior separately in Unity. Development checkouts may live in `Assets/Nyades/BlenderRoundTrip`; Git and VCC installations live under `Packages`.
 
-Лицензия Blender FT Toolkit — [GPL-3.0-or-later](Editor/Blender/FTToolkit/LICENSE), согласно его manifest и заголовкам исходников.
+Blender FT Toolkit is licensed under [GPL-3.0-or-later](Editor/Blender/FTToolkit/LICENSE), as declared in its manifest and source headers.

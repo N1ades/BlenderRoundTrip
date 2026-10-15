@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "nyades_ft_toolkit"
-version = "1.3.1"
+version = "1.3.2"
 name = "Nyades FT Toolkit"
 tagline = "Mirror shape keys and preview Unity face tracking live"
 maintainer = "Nyades"

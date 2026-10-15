@@ -17,7 +17,7 @@ from mathutils.kdtree import KDTree
 from . import live_preview
 
 bl_info = {
-    "name": "Nyades FT Toolkit", "author": "Nyades", "version": (1, 3, 1),
+    "name": "Nyades FT Toolkit", "author": "Nyades", "version": (1, 3, 2),
     "blender": (4, 2, 0), "location": "3D View > Sidebar > FT Toolkit",
     "description": "Repair symmetry, create mirrored shape keys and preview Unity face tracking via OSC",
     "category": "Mesh",

@@ -1,7 +1,7 @@
 {
   "name": "dev.nyades.blender-round-trip",
   "displayName": "Nyades Blender Round Trip",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "unity": "2022.3",
   "description": "Unity and Blender mesh, rig and shape key round trip with a standalone FT Toolkit and live face tracking preview.",
   "author": {
@@ -28,5 +28,5 @@
   "legacyFolders": {
     "Assets/Nyades/BlenderRoundTrip": "7b2ca170741df694b932a1e309f21009"
   },
-  "url": "https://github.com/N1ades/BlenderRoundTrip/releases/download/v1.3.1/dev.nyades.blender-round-trip-1.3.1.zip"
+  "url": "https://github.com/N1ades/BlenderRoundTrip/releases/download/v1.3.2/dev.nyades.blender-round-trip-1.3.2.zip"
 }

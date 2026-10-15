@@ -1,100 +1,108 @@
-# Nyades FT Toolkit для Blender
+# Nyades FT Toolkit for Blender
 
-Переносимый аддон Blender 4.2+ для исправления симметрии **Basis**, зеркалирования shape keys и живого FT-превью. Геометрические операции работают с активным мешем любого аватара, в том числе без Unity и без Round Trip.
+A portable Blender 4.2+ add-on for **Basis** symmetry repair, mirrored shape keys and live face tracking preview. Geometry operations work on the active mesh of any avatar, including meshes without Unity or Round Trip.
 
-## Установка
+## Installation
 
-1. Скачайте `nyades_ft_toolkit-<версия>.zip` из [Releases](https://github.com/N1ades/BlenderRoundTrip/releases/latest) либо в Unity откройте **Nyades → Blender Round Trip → Open FT Toolkit Add-on**. Проводник выделит встроенный `nyades_ft_toolkit.zip`.
-2. В Blender: **Edit → Preferences → Get Extensions → меню справа сверху → Install from Disk**. Выберите этот ZIP и включите **Nyades FT Toolkit**.
-3. Выберите меш. В 3D View нажмите **N** и откройте вкладку **FT Toolkit**.
+1. Download `nyades_ft_toolkit-<version>.zip` from [Releases](https://github.com/N1ades/BlenderRoundTrip/releases/latest), or open **Nyades → Blender Round Trip → Open FT Toolkit Add-on** in Unity to reveal `nyades_ft_toolkit.zip`.
+2. In Blender, open **Edit → Preferences → Get Extensions → top-right menu → Install from Disk**. Select the ZIP and enable **Nyades FT Toolkit**.
+3. Select a mesh, press **N** in the 3D View, and open **FT Toolkit**.
 
-Аддон устанавливается один раз и доступен в разных `.blend`. Сам Round Trip работает и без установленного аддона. При обновлении установите новый ZIP вместо старой версии. Версия аддона совпадает с номером релиза Round Trip. Разрешение Network нужно для локального OSC-приёмника. В ZIP входят исходники, manifest, README и лицензия; внешние Python-библиотеки не требуются.
+Install once to use the add-on across `.blend` files. Round Trip also works without it. Update by installing a new ZIP over the previous version. The add-on version matches the Round Trip release number. Network permission is used by the local OSC receiver. The ZIP includes source, manifest, README and license, with no external Python dependencies.
 
-## Исправление
+## Symmetry repair
 
-- **Axis** — локальная ось симметрии объекта. Плоскость проходит через локальный ноль; расположение и поворот объекта в сцене не меняются.
-- **Copy from** — сторона, геометрию которой нужно сохранить. **+ to -** по умолчанию восстанавливает отрицательную сторону по положительной; для обратного направления выберите **- to +**.
-- **Pair distance** — максимальное расстояние для поиска близких зеркальных вершин, в координатах меша. По умолчанию `0.0002`. Это не мировые метры при произвольном масштабе объекта.
-- **Center tolerance** — допустимая ошибка симметрии и расстояние от плоскости, в пределах которого вершина ставится точно на ноль. По умолчанию `0.000001`.
-- **Restore islands by UV** — восстанавливает даже сильно смещённые отдельные островки по совпадающим UV активного UV-канала, материалам и связности граней. У каждого островка должна быть однозначная пара, а UV должны однозначно определять его вершины. При разных UV левой и правой стороны это сопоставление не выполняется.
-- **Check Symmetry** проверяет Basis независимо от текущего ключа и значений ползунков.
-- **Repair Symmetry** исправляет весь активный меш, в Object Mode или одиночном Edit Mode. Выделение вершин не ограничивает исправление. **Ctrl+Z** отменяет действие. После проверки сохраните `.blend` и импортируйте его в Unity обычной кнопкой Round Trip.
+- **Axis** selects the local symmetry axis. The plane passes through local zero; object position and rotation stay unchanged.
+- **Copy from** selects the side to retain. Default **+ to -** repairs the negative side from the positive side. Use **- to +** to reverse it.
+- **Pair distance** limits nearby mirrored vertex matching in mesh coordinates. Default: `0.0002`. With arbitrary object scale, this is not a distance in world meters.
+- **Center tolerance** sets error tolerance and the distance from the plane within which vertices snap to zero. Default: `0.000001`.
+- **Restore islands by UV** recovers displaced islands by active-channel UVs, materials and face connectivity. Each island needs an unambiguous counterpart, and UVs must uniquely identify its vertices. Different left/right UVs prevent this matching.
+- **Check Symmetry** checks Basis independently of the active key or slider values.
+- **Repair Symmetry** repairs the entire active mesh in Object Mode or single-object Edit Mode. Vertex selection does not limit the operation. **Ctrl+Z** undoes it. Check the result, save the `.blend`, then import through Round Trip.
 
-Для исправленного ранее лица подходят настройки по умолчанию: **X, + to -, Restore islands by UV**.
+Start with **X, + to -, Restore islands by UV** and verify the direction for your mesh. Reports show moved vertices, before/after errors, unpaired vertices on both sides, ambiguous UV islands and maximum displacement. Unpaired or ambiguous regions may remain unchanged. If the final error is nonzero, inspect direction, distance and geometry. Whole-mesh repair can alter intentional asymmetry.
 
-Отчёт показывает число сдвинутых вершин, ошибки до/после, непарные вершины на обеих сторонах, неоднозначные UV-островки и максимальное смещение. Непарные и неоднозначные участки могут остаться неисправленными; если ошибка не стала нулевой, проверьте направление, расстояние и геометрию этих участков. Для намеренно асимметричного меша исправление всей сетки может быть нежелательно.
+## Preserved data
 
-## Что сохраняется
+Vertices are not merged or deleted. Indices, edges, faces, UVs, materials, groups and weights are retained. Every shape key receives the same coordinate correction as Basis: **new key = old deformation + new Basis**. This preserves one-sided expressions, Relative Key, Vertex Group, values, mute state and slider limits. Repairing Basis does not make expressions symmetric.
 
-Вершины не объединяются и не удаляются. Индексы, рёбра, грани, UV, материалы, группы и их веса сохраняются. Все shape keys получают ту же поправку координат, что и Basis: **новый ключ = старая деформация + новый Basis**. Это сохраняет односторонние выражения, Relative Key, Vertex Group, значения, mute и пределы ползунков. Исправление базы не делает сами выражения симметричными.
-
-Если меш используется несколькими объектами, перед изменением создаётся отдельная копия mesh data для активного объекта. Абсолютные shape keys и редактирование нескольких объектов одновременно не поддерживаются. Аддон не запускается автоматически при экспорте: направление исправления выбирает пользователь.
+Shared mesh data is copied for the active object before editing. Absolute shape keys and simultaneous multi-object editing are unsupported. Repair does not run automatically on export; you choose its direction.
 
 ## Apply Vertex Group
 
-Выберите shape key с назначенной **Vertex Group** и нажмите **Apply Vertex Group** в **N → FT Toolkit**. Веса группы запекаются в координаты выбранного ключа, затем поле Vertex Group этого ключа очищается. Для вершины вычисляется `Relative Key + (Shape Key − Relative Key) × вес`: 0 убирает деформацию, 0.5 оставляет половину, 1 — всю. Саму группу и веса скиннинга кнопка сохраняет. Отсутствующая группа трактуется как отсутствие маски, как в Blender; существующая пустая группа даёт нулевую деформацию.
+Select a shape key with a **Vertex Group**, then click **Apply Vertex Group** in **N → FT Toolkit**. Weights are baked into the key's coordinates and its Vertex Group field is cleared. Each vertex becomes `Relative Key + (Shape Key - Relative Key) × weight`: 0 removes movement, 0.5 halves it, and 1 retains it fully. The group and skinning weights remain. Missing groups are treated as no mask, matching Blender; existing empty groups produce zero deformation.
 
-Имя, значение, mute, пределы ползунка и Relative Key сохраняются. Если другие ключи ссылаются на выбранный напрямую или через цепочку Relative Key, их координаты получают такую же поправку, чтобы сохранить их собственные деформации и итоговый вид. Координаты Basis не меняются. Для общего mesh data создаётся отдельная копия активного меша. Работает в Object Mode и одиночном Edit Mode, поддерживает **Ctrl+Z**; Live FT Preview при операции останавливается. Кнопка доступна для относительных ключей, кроме Basis, с назначенной группой.
+Name, value, mute state, slider limits and Relative Key are retained. Direct and indirect dependent keys receive the same coordinate correction to preserve their deformations and the final appearance. Basis is unchanged. Shared data is copied for the active mesh. Supports Object Mode, single-object Edit Mode and **Ctrl+Z**. Live FT Preview stops during the operation. Available for relative non-Basis keys with an assigned group.
 
 ## Shape Key Flip
 
-Выберите любой ключ, кроме Basis, и нажмите **Flip Active Shape Key**. Кнопка меняет местами деформации обеих сторон выбранного ключа, отражая компоненту движения по выбранной оси. Используется тот же поиск пар по UV/топологии и расстоянию, что и для исправления базы. **Copy from** относится только к Repair; Flip всегда меняет местами обе стороны. Координаты Basis, остальные ключи, Relative Key, имя, значение и настройки активного ключа сохраняются. Повторный Flip возвращает прежнюю деформацию с точностью координат Blender.
+Select a non-Basis key and click **Flip Active Shape Key**. This swaps both sides' deformations and reflects movement along the selected axis. It uses the same UV/topology and distance pairing as symmetry repair. **Copy from** affects Repair only; Flip always swaps both sides. Basis, other keys, Relative Key, name, value and active key settings are retained. Flipping again restores the old deformation within Blender's coordinate precision.
 
-Если хотя бы одна вершина вне центральной плоскости не имеет однозначной пары, Flip отменяется целиком до изменения ключа. Ошибка показывает число непарных вершин; можно проверить **Pair distance**, совпадение UV или сначала исправить Basis. Такое поведение исключает частичный Flip с пропущенными соседями.
+Any unpaired vertex outside the center plane cancels the entire flip before editing. The error reports unpaired vertex counts. Check **Pair distance**, matching UVs, or repair Basis first. This prevents partial flips with skipped neighbors.
 
-При включённом **Mirror shape key mask** маска **Vertex Group** тоже отражается: ключ получает отдельную группу с зеркальными весами, исходные группы и веса скиннинга не меняются. На обратном Flip исходная маска используется снова, если её веса совпадают с результатом отражения. Симметричной маске копия не нужна. Если выключить опцию, ссылка на маску остаётся прежней, поэтому односторонняя маска может скрывать перевёрнутую деформацию.
+With **Mirror shape key mask** enabled, the Vertex Group mask is mirrored into a separate group. Original groups and skinning weights stay unchanged. A return flip reuses the original mask if its weights match the result. Symmetric masks need no copy. With the option disabled, the mask reference stays unchanged, so a one-sided mask can hide a flipped deformation. Supports Object Mode, single-object Edit Mode and **Ctrl+Z**.
 
-Flip работает в Object Mode и одиночном Edit Mode; **Ctrl+Z** отменяет его.
+## Create a mirrored shape key
 
-## Создание зеркального ключа
+**Create Mirrored Shape Key** creates a new key using the same pairs as Flip. The source geometry, value and mask are preserved. The new name swaps **Right ↔ Left**, including CamelCase (`MouthSmileRight → MouthSmileLeft`), separate `right/left`, and `RIGHT/LEFT`. Names without a side receive `_Mirrored`. Existing keys are not overwritten; Blender adds `.001` and subsequent suffixes. The new key becomes active at **0**. Relative Key, limits and mute state are retained; masks mirror when enabled. Supports Object/Edit Mode and Undo.
 
-**Create Mirrored Shape Key** создаёт новый ключ, используя те же пары, что и Flip. Исходный ключ, его геометрия, значение и маска сохраняются. В имени нового ключа заменяются **Right ↔ Left**, включая обычные CamelCase-имена (`MouthSmileRight → MouthSmileLeft`), отдельные `right/left` и `RIGHT/LEFT`. Без указания стороны добавляется `_Mirrored`. Существующие ключи не перезаписываются: Blender добавит `.001` и далее. Новый ключ становится активным, его значение — **0**; сохраняются Relative Key, пределы ползунков и mute, а маска отражается при включённом **Mirror shape key mask**. Поддерживаются Object/Edit Mode и Undo.
+## Live FT preview: Unity → Blender
 
-## Живое FT-превью: Unity → Blender
+Unity evaluates the Animator and sends final shape key weights. Blender does not reproduce Unity blend trees, smoothing or binary FT parameters.
 
-Unity вычисляет Animator и передаёт конечные веса shape keys. Blender не пытается заново вычислять Unity blend trees, сглаживание или бинарные FT-параметры.
+1. Open the Round Trip `.blend`, enter **Object Mode**, then **N → FT Toolkit → Live FT Preview → Start Live FT Preview**. Default receiver: **127.0.0.1:9003**.
+2. In Unity, open **Nyades → FT Live Preview**, or **Open Live FT Preview** in Round Trip. Select the avatar root. **Round Trip JSON** provides mesh matching; the Round Trip button uses the sidecar beside your `.blend` when available. Without a sidecar, leave the field empty and use unique mesh names; Blender's `unity_name` is also considered.
+3. Choose a mode below, match **Blender OSC port** in both applications, then start Unity preview.
 
-1. В Blender откройте Round Trip `.blend`, перейдите в **Object Mode**, затем **N → FT Toolkit → Live FT Preview → Start Live FT Preview**. Порт по умолчанию — **9003**, приём на `127.0.0.1`.
-2. В Unity откройте **Nyades → FT Live Preview**, либо **Open Live FT Preview** в окне Round Trip. Выберите корень аватара. **Round Trip JSON** задаёт сопоставление мешей; кнопка в Round Trip подставляет JSON рядом с выбранным `.blend`, если он существует. Для копии файла без sidecar или произвольного файла поле можно оставить пустым: тогда нужны уникальные имена мешей (`unity_name` в Blender также учитывается).
-3. Выберите режим ниже, проверьте одинаковый **Blender OSC port** в обеих программах и нажмите **Start Live FT Preview** в Unity.
+### Edit Mode FX without Play Mode
 
-### Edit Mode FX, без Play Mode
+Leave **Stream current avatar** disabled. Unity runs an FX AnimatorControllerPlayable on a temporary avatar copy in a preview scene. **Build Modular Avatar / NDMF preview copy** builds merged FX controllers and parameters using installed MA/NDMF tools. Build assets are not saved; the source avatar and controllers are retained. Set **FX override** for a separate controller.
 
-Оставьте **Stream current avatar** выключенным. Unity запускает настоящий FX AnimatorControllerPlayable на отдельной временной копии в preview scene. При включённом **Build Modular Avatar / NDMF preview copy** собираются merged FX-контроллеры и параметры через установленные MA/NDMF. Ассеты сборки не сохраняются; исходный аватар и его контроллеры остаются прежними. Можно явно выбрать **FX override**, если нужен отдельный FT-контроллер.
+**Show Unity avatar preview** displays the same animated copy alongside Blender without Play Mode. **Frame Face** frames the head when found; **Frame Avatar** shows the full avatar. Drag to rotate, scroll to zoom, and Shift-drag or middle-drag to pan. Unity and Blender use their own materials with weights from the same Animator result. Disable Unity preview to reduce GPU work when unnecessary.
 
-**Show Unity avatar preview** показывает эту же анимируемую копию прямо в окне Unity одновременно с Blender, без Play Mode. **Frame Face** приближает голову (если она найдена), **Frame Avatar** показывает весь аватар. Перетаскивание вращает камеру, колесо приближает, Shift-перетаскивание или средняя кнопка перемещают её. Предпросмотр использует материалы Unity; Blender показывает свои материалы, но веса шейпкеев берутся из одного результата аниматора. Если Unity-превью не требуется, выключите его для снижения нагрузки на видеокарту.
+FX preview retains local poses of transforms the controller does not animate, preventing extra bones from implicitly resetting to the Humanoid reference pose. Explicit position, rotation and scale curves apply; individual position/scale axes are respected. Humanoid muscle clips retain control of human bones. Emulator mode reads the runtime pose. The bridge sends shape key weights, excluding explicit bone animation and IK.
 
-FX-превью сохраняет исходную локальную позу трансформов, которыми контроллер не управляет. Это исключает неявный сброс дополнительных костей к Humanoid reference pose (например, лишний поворот кости очков). Явные кривые положения, вращения и масштаба продолжают работать; для положения/масштаба учитываются отдельные оси. Humanoid-клипы с muscle animation сохраняют управление человеческими костями. Режим Av3Emulator продолжает читать фактическую runtime-позу. Мост передаёт в Blender веса шейпкеев; явные анимации костей и IK в Blender этим протоколом не передаются.
+### Update rate and performance
 
-### Частота и производительность
+Set **Updates per second = 60** in Unity and Blender; Blender supports 10–120. Change it before starting. Blender's window timer updates while the mouse is idle. Pending packets are coalesced so each key gets only its latest value per frame. Unchanged values are skipped, without a full mesh update per packet. Unity caches names, full frame weights and packets, with up to 64 keys per packet.
 
-Выставьте **Updates per second = 60** в Unity и Blender; в Blender частота допускает 10–120. Изменять её нужно до запуска. В версии 1.2 оконный таймер Blender обеспечивает обновления и когда мышь неподвижна. Накопившиеся пакеты объединяются: каждый ключ получает только последнее значение за кадр. Неизменившиеся значения не записываются повторно, полное обновление меша на каждый пакет удалено. В Unity имена/полные веса и пакеты кэшируются; один пакет содержит до 64 ключей вместо 16.
+Blender reports incoming **Unity** frames, **receiver** updates and **processing** time separately. These are transport and handler rates, not GPU FPS. Low incoming rates indicate a Unity/source bottleneck; if input is sufficient but the viewport is slow, try Solid shading and disable expensive modifiers temporarily. Target rates do not guarantee matching viewport FPS with expensive geometry or materials.
 
-Статус Blender отдельно показывает частоту входящих кадров **Unity**, обновлений **receiver** и время обработки **processing**. Это частоты транспорта и обработчика, не измерение FPS видеокарты. Если Unity показывает около 5 frames/s, ограничение находится на стороне Unity/источника; если входящих кадров достаточно, а viewport медленный, попробуйте Solid shading и временно отключите тяжёлые модификаторы. Целевая частота не гарантирует соответствующий FPS при дорогой геометрии или материалах.
+Send VRCFT/OSC `/avatar/parameters/<exact parameter name>` to **127.0.0.1:9000**, or the configured **VRCFT OSC input port**. Float, Int, Bool and OSC bundles are supported. Slashes within names are retained, such as `FT/v2/JawOpen`. **Enable Eye / Lip Tracking** enables existing parameters ending in `EyeTrackingActive` or `LipTrackingActive`, also enabled on startup. Enter values manually in the parameter list; clear the `FT` filter to show every parameter.
 
-VRCFT/OSC-источник должен отправлять `/avatar/parameters/<точное имя параметра>` на **127.0.0.1:9000** (или заданный **VRCFT OSC input port**). Принимаются Float, Int, Bool и OSC bundles; слеши внутри имени сохраняются, например `FT/v2/JawOpen`. Кнопка **Enable Eye / Lip Tracking** включает существующие параметры, заканчивающиеся на `EyeTrackingActive`/`LipTrackingActive`; они включаются также при старте. Значения можно вводить вручную в списке параметров; очистите фильтр `FT`, чтобы увидеть все.
+For VRCFT legacy OSC, select your **VRChat OSC profile** (`usr_...`) after starting, then **Prepare / Notify VRCFT (legacy OSC)**. It creates its own `avtr_NyadesFTPreview_...json` in `LocalLow/VRChat/VRChat/OSC/<usr_...>/Avatars` and sends `/avatar/change` to **127.0.0.1:9001**. Addresses and types use the built avatar's Expression Parameters, falling back to controller parameters. Binary Bool parameters are therefore described correctly even when direct blend trees use float inputs. Internal Animator parameters are omitted when Expression Parameters are available. Existing real-avatar configurations are preserved. This follows Av3Emulator's OSC configuration and notification approach. VRCFT must run in legacy OSC mode and target Unity's configured input port; repeat the notification if needed.
 
-Для обычного legacy OSC-режима VRCFT после старта выберите свой **VRChat OSC profile** (`usr_...`) и нажмите **Prepare / Notify VRCFT (legacy OSC)**. Кнопка создаёт собственный `avtr_NyadesFTPreview_...json` в `LocalLow/VRChat/VRChat/OSC/<usr_...>/Avatars` и отправляет `/avatar/change` на **127.0.0.1:9001**. Адреса и типы берутся из Expression Parameters собранного аватара; без них — из параметров контроллера. Так бинарные **Bool**-параметры FT описываются корректно даже при float-входах внутри direct blend trees. Внутренние Animator-параметры не включаются, если доступен список выражений. Существующие конфиги реальных аватаров не заменяются. Это тот же механизм OSC-конфига и уведомления, который применяется в Av3Emulator. VRCFT должен быть запущен и настроен на legacy OSC с отправкой параметров в указанный входной порт Unity; при необходимости уведомление можно повторить.
+If no profile exists, create one through the normal VRChat workflow, or use **Export VRCFT OSC parameter JSON** for manual setup. OSCQuery/mDNS discovery is not included. To reuse an Av3Emulator input port, stop the emulator session first, or use streaming mode below.
 
-Если профиль ещё не существует, сначала войдите в VRChat/создайте его обычным способом либо воспользуйтесь **Export VRCFT OSC parameter JSON** для ручной настройки источника. OSCQuery/mDNS-обнаружение в этот мост не включено. Если VRCFT уже настроен на OSC Av3Emulator, можно использовать его с тем же входным портом после остановки emulator-сессии либо выбрать следующий режим.
-
-Поддерживаются native Animator transitions, blend trees, curves, masks и FT-сглаживание контроллера, а также SDK Parameter Driver Set/Add/Copy/Random, Animator Layer Control и FX Playable Layer Control. Это FX-превью для настройки выражений, а не полная VRChat-эмуляция: IK, динамика PhysBones/Contacts, другие playable layers и обработчики произвольных сторонних компонентов здесь не симулируются.
+Supported features include Animator transitions, blend trees, curves, masks and controller smoothing, plus SDK Parameter Driver Set/Add/Copy/Random, Animator Layer Control and FX Playable Layer Control. This expression preview does not simulate IK, PhysBones/Contacts, other playable layers or arbitrary third-party handlers.
 
 ### Av3Emulator / Gesture Manager
 
-Включите **Stream current avatar**. Запустите Av3Emulator/Gesture Manager обычным способом, включите OSC там и выберите **local runtime avatar**, чьи рендереры реально анимируются. Мост читает конечные веса именно выбранного аватара и отправляет их в Blender. Входной OSC-порт эмулятора он не занимает и Animator не подменяет. Для полной Av3Emulator-эмуляции используется Play Mode; можно также передавать вручную выставленные веса обычного аватара вне Play Mode.
+Enable **Stream current avatar**. Start the emulator normally, enable OSC there, and select the **local runtime avatar** whose renderers are animated. The bridge reads that avatar's final weights and sends them to Blender. It does not bind the emulator's input port or replace its Animator. Full Av3Emulator simulation uses Play Mode; manually adjusted weights can also stream outside Play Mode.
 
-### Остановка, редактирование и сохранение
+### Stopping, editing and saving
 
-- **Stop** в Blender возвращает исходные значения, mute и пределы ползунков, а также Show Only Shape Key. После прекращения поступления значений ползунки возвращаются через секунду.
-- На время сохранения `.blend` подставляются авторские значения ползунков, затем live-поза возвращается на экран. Так случайное выражение с камеры не сохраняется в файле.
-- При переходе в Edit Mode изменения значений для этого меша приостанавливаются. Для Undo или загрузки другого файла приёмник останавливается; после операции его можно запустить снова.
-- В Unity остановка, смена Play Mode, закрытие окна и recompilation закрывают сокеты и удаляют preview copy. Пользовательский аватар не сохраняется и не изменяется редакторным FX-превью.
-- Веса нормализуются по полному frame weight Unity: `30 / 100 → 0.3`, `30 / 50 → 0.6`. Отрицательные значения и значения выше 1 поддерживаются в допустимом диапазоне Blender. Передаются также нули, поэтому закрывшееся выражение не остаётся включённым.
-- В Blender отображаются счётчики пакетов, некорректных сообщений и несопоставленных мешей/ключей. Новые ключи в Blender начнут управляться Animator после обычного обратного импорта и настройки соответствующих анимаций.
+- **Stop** restores Blender values, mute state, slider limits and Show Only Shape Key. If incoming data stops, sliders restore after one second.
+- Saving a `.blend` temporarily restores authoring values, then resumes the live viewport pose, preventing camera expressions from being saved accidentally.
+- Edit Mode pauses updates for that mesh. Undo and loading another file stop the receiver; restart it afterward.
+- Stopping Unity preview, changing Play Mode, closing the window or recompiling closes sockets and removes the preview copy. Editor FX preview does not save or modify the source avatar.
+- Weights normalize by Unity's full frame weight: `30 / 100 → 0.3`, `30 / 50 → 0.6`. Negative values and values above 1 work within Blender's limits. Zeros are transmitted so closed expressions do not remain stuck.
+- Blender displays packet, malformed-message and unmatched mesh/key counters. New keys can be animated after a normal return import and animation setup.
 
-Протокол моста: OSC `/nyades/ft/frame` с одним JSON string-аргументом, `version: 1`, `session`, `sequence`, идентификатором/именем меша и списком `{name, value}`. Unity разбивает ключи на небольшие пакеты. Оба сокета работают локально; входные VRCFT-параметры принимает Unity, а Blender — рассчитанные значения shape keys.
+Protocol: OSC `/nyades/ft/frame` with one JSON string containing `version: 1`, `session`, `sequence`, mesh identifier/name and `{name, value}` items. Unity splits keys into small packets. Both sockets run locally: Unity receives VRCFT parameters; Blender receives final shape key weights.
 
-## Сборка ZIP
+## Build the ZIP
 
-Из корня репозитория: `python Editor/Blender/build_ft_toolkit.py`. Из корня Unity-проекта: `python Assets/Nyades/BlenderRoundTrip/Editor/Blender/build_ft_toolkit.py`. В архив попадают только исходники, manifest, README и LICENSE, без Unity `.meta` и Python-кэша. Лицензия исходников: GPL-3.0-or-later.
+From the repository root:
+
+```sh
+python Editor/Blender/build_ft_toolkit.py
+```
+
+From the Unity project root:
+
+```sh
+python Assets/Nyades/BlenderRoundTrip/Editor/Blender/build_ft_toolkit.py
+```
+
+Includes source, manifest, README and LICENSE, without Unity `.meta` files or Python caches. Source license: GPL-3.0-or-later.

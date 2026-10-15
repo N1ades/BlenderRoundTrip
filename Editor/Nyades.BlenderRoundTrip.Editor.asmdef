@@ -1,0 +1,6 @@
+{
+  "name": "Nyades.BlenderRoundTrip.Editor",
+  "rootNamespace": "Nyades.BlenderRoundTrip",
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}
